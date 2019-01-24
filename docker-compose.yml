@@ -1,0 +1,32 @@
+version:  '3'
+services:
+  reverseproxy:
+    build:
+      dockerfile: Dockerfile
+      context: .      
+    image:  nginx_1.14.2
+    container_name: prod_reverse_proxy
+    volumes:
+      - /home/tpad/docker_samples/my_docker:/tmr
+      - ./nginx/certs:/etc/nginx/certs
+      - ./nginx/sites-available/:/etc/nginx/sites-available
+      - ./nginx/sites-enabled/:/etc/nginx/sites-enabled
+      - ./nginx/private/:/etc/nginx/private
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./logrotate/nginx:/etc/logrotate.d/nginx
+    ports:
+      - 1014:1014
+      - 443:443
+      - 1002:1002
+      - 1003:1003
+      - 9000:9000
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1k"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1014"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
